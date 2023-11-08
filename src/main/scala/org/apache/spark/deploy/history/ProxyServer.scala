@@ -42,7 +42,7 @@ class ProxyServer(conf: SparkConf,
     val apiHandler = getServletHandler.invoke(ApiRootResource, this)
     attachHandler.invoke(this, apiHandler)
 
-    val historyHandler = HistoryServlet.getServletHandler(this)
+    val historyHandler = ApplicationHistoryServlet.getServletHandler(this)
     attachHandler.invoke(this, historyHandler)
 
     val proxyHandler = ApplicationProxyServlet.getServletHandler(proxyProvider.getAddress)

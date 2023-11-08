@@ -7,7 +7,7 @@ import org.sparkproject.jetty.servlet.{ServletContextHandler, ServletHolder}
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import scala.util.control.NonFatal
 
-class HistoryServlet(uiRoot: UIRoot) extends HttpServlet {
+class ApplicationHistoryServlet(uiRoot: UIRoot) extends HttpServlet {
   protected override def doGet(req: HttpServletRequest, res: HttpServletResponse): Unit = {
     res.setContentType("text/html;charset=utf-8")
 
@@ -68,10 +68,10 @@ class HistoryServlet(uiRoot: UIRoot) extends HttpServlet {
   }
 }
 
-object HistoryServlet {
+object ApplicationHistoryServlet {
   // Return `org.sparkproject.jetty.servlet.ServletContextHandler` instead of `org.eclipse.jetty.servlet.ServletContextHandler`
   def getServletHandler(uiRoot: UIRoot): ServletContextHandler = {
-    val servlet = new HistoryServlet(uiRoot)
+    val servlet = new ApplicationHistoryServlet(uiRoot)
     val handler = new ServletContextHandler
     handler.setContextPath(HistoryServer.UI_PATH_PREFIX)
     handler.addServlet(new ServletHolder(servlet), "/*")
