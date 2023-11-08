@@ -4,13 +4,15 @@ import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.{History, UI}
 import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
+import org.apache.spark.ui.JettyUtils.createProxyHandler
 import org.apache.spark.ui.{SparkUI, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
 import org.apache.spark.{SecurityManager, SparkConf}
 import org.sparkproject.jetty.servlet.ServletContextHandler
 
 class ProxyServer(conf: SparkConf,
-                  provider: ApplicationHistoryProvider,
+                  proxyProvider: ApplicationProxyProvider,
+                  historyProvider: ApplicationHistoryProvider,
                   securityManager: SecurityManager)
   extends WebUI(securityManager, securityManager.getSSLOptions("proxyServer"), ProxyServer.getUIPort(conf),
     conf, name = "ProxyServerUI")
@@ -26,7 +28,7 @@ class ProxyServer(conf: SparkConf,
   private val detachHandler = classOf[WebUI].getMethod("detachHandler", classOf[ServletContextHandler])
 
   override def initialize(): Unit = {
-    attachPage(new ProxyPage(provider))
+    attachPage(new ProxyPage(proxyProvider, historyProvider))
     addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
 
     // spark-core shade `org.eclipse.jetty` to `org.sparkproject.jetty`.
@@ -43,22 +45,25 @@ class ProxyServer(conf: SparkConf,
 
     val historyHandler = HistoryServlet.getServletHandler(this)
     attachHandler.invoke(this, historyHandler)
+
+    val proxyHandler = createProxyHandler(proxyProvider.getAddress)
+    attachHandler.invoke(this, proxyHandler)
   }
 
   override def withSparkUI[T](appId: String, attemptId: Option[String])(fn: SparkUI => T): T =
     appCache.withSparkUI(appId, attemptId)(fn)
 
   override def getApplicationInfoList: Iterator[ApplicationInfo] =
-    provider.getListing()
+    historyProvider.getListing()
 
   override def getApplicationInfo(appId: String): Option[ApplicationInfo] =
-    provider.getApplicationInfo(appId)
+    historyProvider.getApplicationInfo(appId)
 
   override def checkUIViewPermissions(appId: String, attemptId: Option[String], user: String): Boolean =
-    provider.checkUIViewPermissions(appId, attemptId, user)
+    historyProvider.checkUIViewPermissions(appId, attemptId, user)
 
   override def getAppUI(appId: String, attemptId: Option[String]): Option[LoadedAppUI] =
-    provider.getAppUI(appId, attemptId)
+    historyProvider.getAppUI(appId, attemptId)
 
   override def attachSparkUI(appId: String, attemptId: Option[String], ui: SparkUI, completed: Boolean): Unit = {
     assert(serverInfo.isDefined, "ProxyServer must be bound before attaching SparkUIs")
@@ -76,7 +81,7 @@ class ProxyServer(conf: SparkConf,
     handlers.foreach { handler =>
       detachHandler.invoke(this, handler)
     }
-    provider.onUIDetached(appId, attemptId, ui)
+    historyProvider.onUIDetached(appId, attemptId, ui)
   }
 }
 
@@ -88,15 +93,18 @@ object ProxyServer extends Logging {
     new HistoryServerArguments(conf, args)
 
     val securityManager = createSecurityManager(conf)
-    val provider = createApplicationHistoryProvider(conf)
-    val server = new ProxyServer(conf, provider, securityManager)
+    val proxyProvider = createApplicationProxyProvider(conf)
+    val historyProvider = createApplicationHistoryProvider(conf)
+    val server = new ProxyServer(conf, proxyProvider, historyProvider, securityManager)
     server.initialize()
     server.bind()
-    provider.start()
+    proxyProvider.start()
+    historyProvider.start()
 
     ShutdownHookManager.addShutdownHook { () =>
       server.stop()
-      provider.stop()
+      proxyProvider.stop()
+      historyProvider.stop()
     }
 
     // Wait until the end of the world... or if the HistoryServer process is manually stopped
@@ -135,6 +143,8 @@ object ProxyServer extends Logging {
 
     new SecurityManager(conf)
   }
+
+  private def createApplicationProxyProvider(conf: SparkConf): ApplicationProxyProvider = ???
 
   private def createApplicationHistoryProvider(conf: SparkConf): ApplicationHistoryProvider = {
     val providerName = conf.get(History.PROVIDER)

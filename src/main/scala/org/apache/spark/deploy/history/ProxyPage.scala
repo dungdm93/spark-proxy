@@ -6,7 +6,7 @@ import org.apache.spark.ui.{UIUtils, WebUIPage}
 import javax.servlet.http.HttpServletRequest
 import scala.xml.Node
 
-private[history] class ProxyPage(provider: ApplicationHistoryProvider)
+private[history] class ProxyPage(proxyProvider: ApplicationProxyProvider, historyProvider: ApplicationHistoryProvider)
   extends WebUIPage("") {
   def render(request: HttpServletRequest): Seq[Node] = {
     val requestedIncomplete = Option(request.getParameter("showIncomplete"))
@@ -14,19 +14,18 @@ private[history] class ProxyPage(provider: ApplicationHistoryProvider)
 
     val displayApplications = shouldDisplayApplications(requestedIncomplete)
     val eventLogsUnderProcessCount = 100
-    val lastUpdatedTime = provider.getLastUpdatedTime()
-    val providerConfig = provider.getConfig()
+    val lastUpdatedTime = historyProvider.getLastUpdatedTime()
+    val providerConfig = historyProvider.getConfig()
     val content =
       <script src={UIUtils.prependBaseUri(request, "/static/historypage-common.js")}></script> ++
         <script src={UIUtils.prependBaseUri(request, "/static/utils.js")}></script>
           <div>
             <div class="container-fluid">
               <ul class="list-unstyled">
-                {providerConfig.map { case (k, v) => <li>
-                <strong>
-                  {k}
-                  :</strong>{v}
-              </li>
+                {providerConfig.map { case (k, v) =>
+                <li>
+                  <strong>{k}:</strong> {v}
+                </li>
               }}
               </ul>{if (eventLogsUnderProcessCount > 0) {
               <p>There are
@@ -53,7 +52,7 @@ private[history] class ProxyPage(provider: ApplicationHistoryProvider)
             } else if (eventLogsUnderProcessCount > 0) {
               <h4>No completed applications found!</h4>
             } else {
-              <h4>No completed applications found!</h4> ++ provider.getEmptyListingHtml()
+              <h4>No completed applications found!</h4> ++ historyProvider.getEmptyListingHtml()
             }}<a href={makePageLink(request, !requestedIncomplete)}>
               {if (requestedIncomplete) {
                 "Back to completed applications"
@@ -67,7 +66,7 @@ private[history] class ProxyPage(provider: ApplicationHistoryProvider)
   }
 
   def shouldDisplayApplications(requestedIncomplete: Boolean): Boolean = {
-    provider.getListing().exists(isApplicationCompleted(_) != requestedIncomplete)
+    historyProvider.getListing().exists(isApplicationCompleted(_) != requestedIncomplete)
   }
 
   private def makePageLink(request: HttpServletRequest, showIncomplete: Boolean): String = {
