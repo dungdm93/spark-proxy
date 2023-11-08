@@ -4,7 +4,6 @@ import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.{History, UI}
 import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
-import org.apache.spark.ui.JettyUtils.createProxyHandler
 import org.apache.spark.ui.{SparkUI, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
 import org.apache.spark.{SecurityManager, SparkConf}
@@ -46,7 +45,7 @@ class ProxyServer(conf: SparkConf,
     val historyHandler = HistoryServlet.getServletHandler(this)
     attachHandler.invoke(this, historyHandler)
 
-    val proxyHandler = createProxyHandler(proxyProvider.getAddress)
+    val proxyHandler = ApplicationProxyServlet.getServletHandler(proxyProvider.getAddress)
     attachHandler.invoke(this, proxyHandler)
   }
 
@@ -144,7 +143,10 @@ object ProxyServer extends Logging {
     new SecurityManager(conf)
   }
 
-  private def createApplicationProxyProvider(conf: SparkConf): ApplicationProxyProvider = ???
+  private def createApplicationProxyProvider(conf: SparkConf): ApplicationProxyProvider = {
+    case "spark-e90b4140dd3a40c0be3df102a870a855" => Some("http://10.6.4.5:4040")
+    case _ => None
+  }
 
   private def createApplicationHistoryProvider(conf: SparkConf): ApplicationHistoryProvider = {
     val providerName = conf.get(History.PROVIDER)
