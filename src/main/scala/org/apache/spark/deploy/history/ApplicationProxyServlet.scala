@@ -1,7 +1,7 @@
 package org.apache.spark.deploy.history
 
 import org.sparkproject.jetty.client.HttpClient
-import org.sparkproject.jetty.client.api.Response
+import org.sparkproject.jetty.client.api.{Request, Response}
 import org.sparkproject.jetty.client.http.HttpClientTransportOverHTTP
 import org.sparkproject.jetty.proxy.ProxyServlet
 import org.sparkproject.jetty.servlet.{ServletContextHandler, ServletHolder}
@@ -38,6 +38,23 @@ class ApplicationProxyServlet(idToUiAddress: String => Option[String]) extends P
       .filter(uri => uri != null && validateDestination(uri.getHost, uri.getPort))
       .map(_.toString)
       .orNull
+  }
+
+  override def addXForwardedHeaders(clientRequest: HttpServletRequest, proxyRequest: Request): Unit = {
+    super.addXForwardedHeaders(clientRequest, proxyRequest)
+
+    val path = clientRequest.getPathInfo
+    if (path == null) return
+
+    val prefixTrailingSlashIndex = path.indexOf('/', 1)
+    val prefix = if (prefixTrailingSlashIndex == -1) {
+      path
+    } else {
+      path.substring(0, prefixTrailingSlashIndex)
+    }
+    val id = prefix.drop(1)
+    val context = "/proxy/" + id
+    proxyRequest.header("X-Forwarded-Context", context)
   }
 
   override def filterServerResponseHeader(
