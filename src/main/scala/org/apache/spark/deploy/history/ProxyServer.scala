@@ -1,8 +1,9 @@
 package org.apache.spark.deploy.history
 
+import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.History
-import org.apache.spark.status.api.v1.{ApplicationInfo, UIRoot}
+import org.apache.spark.internal.config.{History, UI}
+import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
 import org.apache.spark.ui.{SparkUI, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
 import org.apache.spark.{SecurityManager, SparkConf}
@@ -19,7 +20,17 @@ class ProxyServer(conf: SparkConf,
   private val retainedApplications = conf.get(History.RETAINED_APPLICATIONS)
   private val appCache = new ApplicationCache(this, retainedApplications, new SystemClock())
 
-  override def initialize(): Unit = ???
+  override def initialize(): Unit = {
+    attachPage(new ProxyPage(provider))
+
+    addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
+
+    val apiHandler = ApiRootResource.getServletHandler(this)
+    attachHandler(apiHandler)
+
+    val historyHandler = HistoryServlet.getServletHandler(this)
+    attachHandler(historyHandler)
+  }
 
   override def withSparkUI[T](appId: String, attemptId: Option[String])(fn: SparkUI => T): T =
     appCache.withSparkUI(appId, attemptId)(fn)
@@ -75,11 +86,35 @@ object ProxyServer extends Logging {
     }
   }
 
-  private def createSecurityManager(conf: SparkConf): SecurityManager = {
-    HistoryServer.initSecurity()
-    val securityManager = HistoryServer.createSecurityManager(conf)
+  private def initSecurity(): Unit = {
+    // If we are accessing HDFS and it has security enabled (Kerberos), we have to login
+    // from a keytab file so that we can access HDFS beyond the kerberos ticket expiration.
+    // As long as it is using Hadoop rpc (hdfs://), a relogin will automatically
+    // occur from the keytab.
+    if (conf.get(History.KERBEROS_ENABLED)) {
+      // if you have enabled kerberos the following 2 params must be set
+      val principalName = conf.get(History.KERBEROS_PRINCIPAL)
+        .getOrElse(throw new NoSuchElementException(History.KERBEROS_PRINCIPAL.key))
+      val keytabFilename = conf.get(History.KERBEROS_KEYTAB)
+        .getOrElse(throw new NoSuchElementException(History.KERBEROS_KEYTAB.key))
+      SparkHadoopUtil.get.loginUserFromKeytab(principalName, keytabFilename)
+    }
+  }
 
-    securityManager
+  private def createSecurityManager(conf: SparkConf): SecurityManager = {
+    initSecurity()
+    if (conf.getBoolean(SecurityManager.SPARK_AUTH_CONF, false)) {
+      logDebug(s"Clearing ${SecurityManager.SPARK_AUTH_CONF}")
+      conf.set(SecurityManager.SPARK_AUTH_CONF, "false")
+    }
+
+    if (conf.get(UI.ACLS_ENABLE)) {
+      logInfo(s"${UI.ACLS_ENABLE.key} is configured, " +
+        s"clearing it and only using ${History.HISTORY_SERVER_UI_ACLS_ENABLE.key}")
+      conf.set(UI.ACLS_ENABLE, false)
+    }
+
+    new SecurityManager(conf)
   }
 
   private def createApplicationHistoryProvider(conf: SparkConf): ApplicationHistoryProvider = {
