@@ -2,7 +2,7 @@ package org.apache.spark.deploy.history
 
 import org.apache.spark.status.api.v1.UIRoot
 import org.apache.spark.ui.UIUtils
-import org.eclipse.jetty.servlet.{ServletContextHandler, ServletHolder}
+import org.sparkproject.jetty.servlet.{ServletContextHandler, ServletHolder}
 
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
 import scala.util.control.NonFatal
@@ -69,6 +69,7 @@ class HistoryServlet(uiRoot: UIRoot) extends HttpServlet {
 }
 
 object HistoryServlet {
+  // Return `org.sparkproject.jetty.servlet.ServletContextHandler` instead of `org.eclipse.jetty.servlet.ServletContextHandler`
   def getServletHandler(uiRoot: UIRoot): ServletContextHandler = {
     val servlet = new HistoryServlet(uiRoot)
     val handler = new ServletContextHandler

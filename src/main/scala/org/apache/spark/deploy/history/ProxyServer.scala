@@ -7,6 +7,7 @@ import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
 import org.apache.spark.ui.{SparkUI, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
 import org.apache.spark.{SecurityManager, SparkConf}
+import org.sparkproject.jetty.servlet.ServletContextHandler
 
 class ProxyServer(conf: SparkConf,
                   provider: ApplicationHistoryProvider,
@@ -20,16 +21,28 @@ class ProxyServer(conf: SparkConf,
   private val retainedApplications = conf.get(History.RETAINED_APPLICATIONS)
   private val appCache = new ApplicationCache(this, retainedApplications, new SystemClock())
 
+  // Reflections
+  private val attachHandler = classOf[WebUI].getMethod("attachHandler", classOf[ServletContextHandler])
+  private val detachHandler = classOf[WebUI].getMethod("detachHandler", classOf[ServletContextHandler])
+
   override def initialize(): Unit = {
     attachPage(new ProxyPage(provider))
-
     addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
 
-    val apiHandler = ApiRootResource.getServletHandler(this)
-    attachHandler(apiHandler)
+    // spark-core shade `org.eclipse.jetty` to `org.sparkproject.jetty`.
+    // So this way won't work, we need to use reflection instead.
+    //    val apiHandler = ApiRootResource.getServletHandler(this)
+    //    attachHandler(apiHandler)
+    //
+    //    val historyHandler = HistoryServlet.getServletHandler(this)
+    //    attachHandler(historyHandler)
+
+    val getServletHandler = ApiRootResource.getClass.getMethod("getServletHandler", classOf[UIRoot])
+    val apiHandler = getServletHandler.invoke(ApiRootResource, this)
+    attachHandler.invoke(this, apiHandler)
 
     val historyHandler = HistoryServlet.getServletHandler(this)
-    attachHandler(historyHandler)
+    attachHandler.invoke(this, historyHandler)
   }
 
   override def withSparkUI[T](appId: String, attemptId: Option[String])(fn: SparkUI => T): T =
@@ -49,14 +62,20 @@ class ProxyServer(conf: SparkConf,
 
   override def attachSparkUI(appId: String, attemptId: Option[String], ui: SparkUI, completed: Boolean): Unit = {
     assert(serverInfo.isDefined, "ProxyServer must be bound before attaching SparkUIs")
-    ui.getHandlers.foreach { handler =>
-      serverInfo.get.addHandler(handler, ui.securityManager)
+    // ui.getHandlers.foreach(attachHandler)
+    val handlers: Seq[Object] = ui.getHandlers
+    handlers.foreach { handler =>
+      attachHandler.invoke(this, handler)
     }
   }
 
   override def detachSparkUI(appId: String, attemptId: Option[String], ui: SparkUI): Unit = {
     assert(serverInfo.isDefined, "ProxyServer must be bound before detaching SparkUIs")
-    ui.getHandlers.foreach(detachHandler)
+    // ui.getHandlers.foreach(detachHandler)
+    val handlers: Seq[Object] = ui.getHandlers
+    handlers.foreach { handler =>
+      detachHandler.invoke(this, handler)
+    }
     provider.onUIDetached(appId, attemptId, ui)
   }
 }
