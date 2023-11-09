@@ -3,6 +3,7 @@ package org.apache.spark.deploy.history
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.{History, UI}
+import org.apache.spark.kubernetes.KubernetesProxyProvider
 import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
 import org.apache.spark.ui.{SparkUI, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
@@ -144,8 +145,13 @@ object ProxyServer extends Logging {
   }
 
   private def createApplicationProxyProvider(conf: SparkConf): ApplicationProxyProvider = {
-    case "spark-e90b4140dd3a40c0be3df102a870a855" => Some("http://10.6.4.5:4040")
-    case _ => None
+    val providerName = conf.get(Proxy.PROVIDER)
+      .getOrElse(classOf[KubernetesProxyProvider].getName)
+    val provider = Utils.classForName[ApplicationProxyProvider](providerName)
+      .getConstructor(classOf[SparkConf])
+      .newInstance(conf)
+
+    provider
   }
 
   private def createApplicationHistoryProvider(conf: SparkConf): ApplicationHistoryProvider = {
