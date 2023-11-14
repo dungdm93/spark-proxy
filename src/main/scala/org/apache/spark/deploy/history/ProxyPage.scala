@@ -90,7 +90,7 @@ private[history] class ProxyPage(pageSize: Int, proxyProvider: ApplicationProxyP
           </h4>
         </span>
         <div class="aggregated-completedApps collapsible-table">
-          <div id="history-summary"></div>
+          <div id="completed-app-table"></div>
         </div>
       </div>
     </div>
