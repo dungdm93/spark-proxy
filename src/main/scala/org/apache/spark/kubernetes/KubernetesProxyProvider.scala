@@ -27,6 +27,13 @@ class KubernetesProxyProvider(conf: SparkConf)
     informerFactory.stopAllRegisteredInformers()
   }
 
+  override def getConfig(): Map[String, String] = {
+    Map(
+      "Spark Proxy" -> "Kubernetes",
+      "Namespace" -> "default"
+    )
+  }
+
   override def getAddress(id: String): Option[String] =
     idToInfo.get(id).map(info => s"http://${info.driverHost}:${info.driverPort}")
 

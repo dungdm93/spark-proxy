@@ -6,63 +6,94 @@ import org.apache.spark.ui.{UIUtils, WebUIPage}
 import javax.servlet.http.HttpServletRequest
 import scala.xml.Node
 
-private[history] class ProxyPage(proxyProvider: ApplicationProxyProvider, historyProvider: ApplicationHistoryProvider)
+private[history] class ProxyPage(pageSize: Int, proxyProvider: ApplicationProxyProvider, historyProvider: ApplicationHistoryProvider)
   extends WebUIPage("") {
   def render(request: HttpServletRequest): Seq[Node] = {
-    val requestedIncomplete = Option(request.getParameter("showIncomplete"))
-      .getOrElse("false").toBoolean
+    val content = scripts(request) ++ renderInfo() ++ renderRunningApplications() ++ renderCompletedApplications()
+    UIUtils.basicSparkPage(request, content, "Proxy Server", true)
+  }
 
-    val displayApplications = shouldDisplayApplications(requestedIncomplete)
-    val eventLogsUnderProcessCount = 100
+  private def scripts(request: HttpServletRequest): Seq[Node] = {
+    <script src={UIUtils.prependBaseUri(request, "/static/utils.js")}></script>
+      <script src={UIUtils.prependBaseUri(request, "/static/dataTables.rowsGroup.js")}></script>
+      <script src={UIUtils.prependBaseUri(request, "/static-proxy/proxypage.js")}></script>
+      <script>setAppLimit(
+        {pageSize}
+        )</script>
+  }
+
+  private def renderInfo(): Seq[Node] = {
     val lastUpdatedTime = historyProvider.getLastUpdatedTime()
-    val providerConfig = historyProvider.getConfig()
-    val content =
-      <script src={UIUtils.prependBaseUri(request, "/static/historypage-common.js")}></script> ++
-        <script src={UIUtils.prependBaseUri(request, "/static/utils.js")}></script>
-          <div>
-            <div class="container-fluid">
-              <ul class="list-unstyled">
-                {providerConfig.map { case (k, v) =>
-                <li>
-                  <strong>{k}:</strong> {v}
-                </li>
-              }}
-              </ul>{if (eventLogsUnderProcessCount > 0) {
-              <p>There are
-                {eventLogsUnderProcessCount}
-                event log(s) currently being
-                processed which may result in additional applications getting listed on this page.
-                Refresh the page to view updates.</p>
-            }}{if (lastUpdatedTime > 0) {
-              <p>Last updated:
-                <span id="last-updated">
-                  {lastUpdatedTime}
-                </span>
-              </p>
-            }}{<p>Client local time zone:
-              <span id="time-zone"></span>
-            </p>}{if (displayApplications) {
-              <script src={UIUtils.prependBaseUri(
-                request, "/static/dataTables.rowsGroup.js")}></script> ++
-                <div id="history-summary"></div> ++
-                <script src={UIUtils.prependBaseUri(request, "/static/historypage.js")}></script> ++
-                <script>setAppLimit(1000)</script>
-            } else if (requestedIncomplete) {
-              <h4>No incomplete applications found!</h4>
-            } else if (eventLogsUnderProcessCount > 0) {
-              <h4>No completed applications found!</h4>
-            } else {
-              <h4>No completed applications found!</h4> ++ historyProvider.getEmptyListingHtml()
-            }}<a href={makePageLink(request, !requestedIncomplete)}>
-              {if (requestedIncomplete) {
-                "Back to completed applications"
-              } else {
-                "Show incomplete applications"
-              }}
-            </a>
-            </div>
-          </div>
-    UIUtils.basicSparkPage(request, content, "History Server", true)
+    val historyProviderConfig = historyProvider.getConfig()
+    val proxyProviderConfig = proxyProvider.getConfig()
+    val eventLogsUnderProcessCount = 100
+
+    <div>
+      <ul class="list-unstyled">
+        {historyProviderConfig.map { case (k, v) =>
+        <li>
+          <strong>
+            {k}
+            :</strong>{v}
+        </li>
+      }}{proxyProviderConfig.map { case (k, v) =>
+        <li>
+          <strong>
+            {k}
+            :</strong>{v}
+        </li>
+      }}
+      </ul>{if (eventLogsUnderProcessCount > 0) {
+      <p>There are
+        {eventLogsUnderProcessCount}
+        event log(s) currently being processed which may result
+        in additional applications getting listed on this page.
+        Refresh the page to view updates.
+      </p>
+    }}{if (lastUpdatedTime > 0) {
+      <p>Last updated:
+        <span id="last-updated">
+          {lastUpdatedTime}
+        </span>
+      </p>
+    }}{<p>Client local time zone:
+      <span id="time-zone"></span>
+    </p>}
+    </div>
+  }
+
+  private def renderRunningApplications(): Seq[Node] = {
+    <div class="row">
+      <div class="col-12">
+        <span id="running-app" class="collapse-aggregated-activeApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-activeApps','aggregated-activeApps')">
+          <h4>
+            <span class="collapse-table-arrow arrow-open"></span>
+            <a>Running Applications (0)</a>
+          </h4>
+        </span>
+        <div class="aggregated-activeApps collapsible-table">
+          <div id="running-app-table"></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  private def renderCompletedApplications(): Seq[Node] = {
+    <div class="row">
+      <div class="col-12">
+        <span id="completed-app" class="collapse-aggregated-completedApps collapse-table"
+              onClick="collapseTable('collapse-aggregated-completedApps', 'aggregated-completedApps')">
+          <h4>
+            <span class="collapse-table-arrow arrow-open"></span>
+            <a>Completed Applications (0)</a>
+          </h4>
+        </span>
+        <div class="aggregated-completedApps collapsible-table">
+          <div id="history-summary"></div>
+        </div>
+      </div>
+    </div>
   }
 
   def shouldDisplayApplications(requestedIncomplete: Boolean): Boolean = {

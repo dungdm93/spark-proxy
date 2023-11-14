@@ -2,7 +2,7 @@ package org.apache.spark.deploy.history
 
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.internal.Logging
-import org.apache.spark.internal.config.{History, UI}
+import org.apache.spark.internal.config.{HISTORY_UI_MAX_APPS, History, UI}
 import org.apache.spark.kubernetes.KubernetesProxyProvider
 import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
 import org.apache.spark.ui.{SparkUI, WebUI}
@@ -28,8 +28,9 @@ class ProxyServer(conf: SparkConf,
   private val detachHandler = classOf[WebUI].getMethod("detachHandler", classOf[ServletContextHandler])
 
   override def initialize(): Unit = {
-    attachPage(new ProxyPage(proxyProvider, historyProvider))
+    attachPage(new ProxyPage(conf.get(HISTORY_UI_MAX_APPS), proxyProvider, historyProvider))
     addStaticHandler(SparkUI.STATIC_RESOURCE_DIR)
+    addStaticHandler(SparkUI.STATIC_RESOURCE_DIR + "-proxy", "/static-proxy")
 
     // spark-core shade `org.eclipse.jetty` to `org.sparkproject.jetty`.
     // So this way won't work, we need to use reflection instead.

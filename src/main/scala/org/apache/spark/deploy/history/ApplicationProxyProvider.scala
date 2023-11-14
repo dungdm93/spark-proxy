@@ -5,5 +5,7 @@ abstract class ApplicationProxyProvider {
 
   def start(): Unit = {}
 
+  def getConfig(): Map[String, String] = Map()
+
   def getAddress(id: String): Option[String]
 }
