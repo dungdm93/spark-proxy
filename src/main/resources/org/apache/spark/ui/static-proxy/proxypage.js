@@ -29,62 +29,64 @@ function getParameterByName(name, searchString) {
 }
 
 function removeColumnByName(columns, columnName) {
-  return columns.filter(function(col) {return col.name != columnName})
+  return columns.filter(function (col) {
+    return col.name != columnName
+  })
 }
 
 function getColumnIndex(columns, columnName) {
-  for(var i = 0; i < columns.length; i++) {
+  for (var i = 0; i < columns.length; i++) {
     if (columns[i].name == columnName)
       return i;
   }
   return -1;
 }
 
-jQuery.extend( jQuery.fn.dataTableExt.oSort, {
-  "title-numeric-pre": function ( a ) {
+jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+  "title-numeric-pre": function (a) {
     var x = a.match(/title="*(-?[0-9.]+)/)[1];
-    return parseFloat( x );
+    return parseFloat(x);
   },
 
-  "title-numeric-asc": function ( a, b ) {
+  "title-numeric-asc": function (a, b) {
     return ((a < b) ? -1 : ((a > b) ? 1 : 0));
   },
 
-  "title-numeric-desc": function ( a, b ) {
+  "title-numeric-desc": function (a, b) {
     return ((a < b) ? 1 : ((a > b) ? -1 : 0));
   }
 });
 
-jQuery.extend( jQuery.fn.dataTableExt.oSort, {
-  "appid-numeric-pre": function ( a ) {
+jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+  "appid-numeric-pre": function (a) {
     var x = a.match(/title="*(-?[0-9a-zA-Z\\-_]+)/)[1];
     return makeIdNumeric(x);
   },
 
-  "appid-numeric-asc": function ( a, b ) {
+  "appid-numeric-asc": function (a, b) {
     return ((a < b) ? -1 : ((a > b) ? 1 : 0));
   },
 
-  "appid-numeric-desc": function ( a, b ) {
+  "appid-numeric-desc": function (a, b) {
     return ((a < b) ? 1 : ((a > b) ? -1 : 0));
   }
 });
 
-jQuery.extend( jQuery.fn.dataTableExt.ofnSearch, {
-  "appid-numeric": function ( a ) {
+jQuery.extend(jQuery.fn.dataTableExt.ofnSearch, {
+  "appid-numeric": function (a) {
     return a.replace(/[\r\n]/g, " ").replace(/<.*?>/g, "");
   }
 });
 
 $(document).on("ajaxStop", $.unblockUI);
 $(document).on("ajaxStart", () => {
-  $.blockUI({ message: '<h3>Loading history summary...</h3>'});
+  $.blockUI({message: '<h3>Loading history summary...</h3>'});
 });
 
-$(document).ready(function() {
-  $.extend( $.fn.dataTable.defaults, {
+$(document).ready(function () {
+  $.extend($.fn.dataTable.defaults, {
     stateSave: true,
-    lengthMenu: [[20,40,60,100,-1], [20, 40, 60, 100, "All"]],
+    lengthMenu: [[20, 40, 60, 100, -1], [20, 40, 60, 100, "All"]],
     pageLength: 20
   });
 
@@ -98,7 +100,7 @@ $(document).ready(function() {
     status: (requestedIncomplete ? "running" : "completed")
   };
 
-  $.getJSON(uiRoot + "/api/v1/applications", appParams, function(response, _ignored_status, _ignored_jqXHR) {
+  $.getJSON(uiRoot + "/api/v1/applications", appParams, function (response, _ignored_status, _ignored_jqXHR) {
     var array = [];
     var hasMultipleAttempts = false;
     for (var i in response) {
@@ -136,7 +138,7 @@ $(document).ready(function() {
       }
       /* eslint-enable no-prototype-builtins */
     }
-    if(array.length < 20) {
+    if (array.length < 20) {
       $.fn.dataTable.defaults.paging = false;
     }
 
@@ -147,8 +149,8 @@ $(document).ready(function() {
       "showCompletedColumns": !requestedIncomplete,
     };
 
-    $.get(uiRoot + "/static/historypage-template.html", function(template) {
-      var apps = $(Mustache.render($(template).filter("#history-summary-template").html(),data));
+    $.get(uiRoot + "/static/historypage-template.html", function (template) {
+      var apps = $(Mustache.render($(template).filter("#history-summary-template").html(), data));
       var attemptIdColumnName = 'attemptId';
       var startedColumnName = 'started';
       var completedColumnName = 'completed';
@@ -156,29 +158,29 @@ $(document).ready(function() {
       var conf = {
         "data": array,
         "columns": [
-          {name: 'version', data: 'version' },
+          {name: 'version', data: 'version'},
           {
             name: 'appId',
             type: "appid-numeric",
             data: 'id',
-            render:  (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+            render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
           },
-          {name: 'appName', data: 'name' },
+          {name: 'appName', data: 'name'},
           {
             name: attemptIdColumnName,
             data: 'attemptId',
             render: (attemptId, type, row) => (attemptId ? `<a href="${row.attemptUrl}">${attemptId}</a>` : '')
           },
-          {name: startedColumnName, data: 'startTime' },
-          {name: completedColumnName, data: 'endTime' },
+          {name: startedColumnName, data: 'startTime'},
+          {name: completedColumnName, data: 'endTime'},
           {
             name: durationColumnName,
             type: "title-numeric",
             data: 'duration',
-            render:  (id, type, row) => `<span title="${row.durationMillisec}">${row.duration}</span>`
+            render: (id, type, row) => `<span title="${row.durationMillisec}">${row.duration}</span>`
           },
-          {name: 'user', data: 'sparkUser' },
-          {name: 'lastUpdated', data: 'lastUpdated' },
+          {name: 'user', data: 'sparkUser'},
+          {name: 'lastUpdated', data: 'lastUpdated'},
           {
             name: 'eventLog',
             data: 'log',
@@ -215,7 +217,7 @@ $(document).ready(function() {
         conf.columns = removeColumnByName(conf.columns, completedColumnName);
         conf.columns = removeColumnByName(conf.columns, durationColumnName);
       }
-      conf.order = [[ getColumnIndex(conf.columns, defaultSortColumn), "desc" ]];
+      conf.order = [[getColumnIndex(conf.columns, defaultSortColumn), "desc"]];
       conf.columnDefs = [
         {"searchable": false, "targets": [getColumnIndex(conf.columns, durationColumnName)]}
       ];
