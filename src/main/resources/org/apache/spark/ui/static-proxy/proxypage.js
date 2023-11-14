@@ -178,7 +178,7 @@ $(document).on("ajaxStart", () => {
   $.blockUI({message: '<h3>Loading history summary...</h3>'});
 });
 
-$(document).ready(function () {
+$(document).ready(async function () {
   $.extend($.fn.dataTable.defaults, {
     stateSave: true,
     lengthMenu: [[20, 40, 60, 100, -1], [20, 40, 60, 100, "All"]],
@@ -195,54 +195,54 @@ $(document).ready(function () {
     status: (requestedIncomplete ? "running" : "completed")
   };
 
-  $.getJSON(uiRoot + "/api/v1/applications", appParams, function (response, _ignored_status, _ignored_jqXHR) {
-    var array = [];
-    var hasMultipleAttempts = false;
-    for (var i in response) {
-      var app = response[i];
-      if (app["attempts"][0]["completed"] == requestedIncomplete) {
-        continue; // if we want to show for Incomplete, we skip the completed apps; otherwise skip incomplete ones.
-      }
-      var version = "Unknown"
-      if (app["attempts"].length > 0) {
-        version = app["attempts"][0]["appSparkVersion"]
-      }
-      var id = app["id"];
-      var name = app["name"];
-      if (app["attempts"].length > 1) {
-        hasMultipleAttempts = true;
-      }
-
-      // TODO: Replace hasOwnProperty with prototype.hasOwnProperty after we find it's safe to do.
-      /* eslint-disable no-prototype-builtins */
-      for (var j in app["attempts"]) {
-        var attempt = app["attempts"][j];
-        attempt["startTime"] = formatTimeMillis(attempt["startTimeEpoch"]);
-        attempt["endTime"] = formatTimeMillis(attempt["endTimeEpoch"]);
-        attempt["lastUpdated"] = formatTimeMillis(attempt["lastUpdatedEpoch"]);
-        attempt["log"] = uiRoot + "/api/v1/applications/" + id + "/" +
-          (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "logs";
-        attempt["durationMillisec"] = attempt["duration"];
-        attempt["duration"] = formatDuration(attempt["duration"]);
-        attempt["id"] = id;
-        attempt["name"] = name;
-        attempt["version"] = version;
-        attempt["attemptUrl"] = uiRoot + "/history/" + id + "/" +
-          (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "jobs/";
-        array.push(attempt);
-      }
-      /* eslint-enable no-prototype-builtins */
+  const response = await $.getJSON(uiRoot + "/api/v1/applications", appParams);
+  var array = [];
+  var hasMultipleAttempts = false;
+  for (var i in response) {
+    var app = response[i];
+    if (app["attempts"][0]["completed"] == requestedIncomplete) {
+      continue; // if we want to show for Incomplete, we skip the completed apps; otherwise skip incomplete ones.
     }
-    if (array.length < 20) {
-      $.fn.dataTable.defaults.paging = false;
+    var version = "Unknown"
+    if (app["attempts"].length > 0) {
+      version = app["attempts"][0]["appSparkVersion"]
+    }
+    var id = app["id"];
+    var name = app["name"];
+    if (app["attempts"].length > 1) {
+      hasMultipleAttempts = true;
     }
 
-    var data = {
-      "uiroot": uiRoot,
-      "applications": array,
-      "hasMultipleAttempts": hasMultipleAttempts,
-      "showCompletedColumns": !requestedIncomplete,
-    };
+    // TODO: Replace hasOwnProperty with prototype.hasOwnProperty after we find it's safe to do.
+    /* eslint-disable no-prototype-builtins */
+    for (var j in app["attempts"]) {
+      var attempt = app["attempts"][j];
+      attempt["startTime"] = formatTimeMillis(attempt["startTimeEpoch"]);
+      attempt["endTime"] = formatTimeMillis(attempt["endTimeEpoch"]);
+      attempt["lastUpdated"] = formatTimeMillis(attempt["lastUpdatedEpoch"]);
+      attempt["log"] = uiRoot + "/api/v1/applications/" + id + "/" +
+        (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "logs";
+      attempt["durationMillisec"] = attempt["duration"];
+      attempt["duration"] = formatDuration(attempt["duration"]);
+      attempt["id"] = id;
+      attempt["name"] = name;
+      attempt["version"] = version;
+      attempt["attemptUrl"] = uiRoot + "/history/" + id + "/" +
+        (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "jobs/";
+      array.push(attempt);
+    }
+    /* eslint-enable no-prototype-builtins */
+  }
+  if (array.length < 20) {
+    $.fn.dataTable.defaults.paging = false;
+  }
+
+  var data = {
+    "uiroot": uiRoot,
+    "applications": array,
+    "hasMultipleAttempts": hasMultipleAttempts,
+    "showCompletedColumns": !requestedIncomplete,
+  };
 
   const template = await $.get(`${uiRoot}/static/historypage-template.html`)
   renderTable(historySummary, template, data)
