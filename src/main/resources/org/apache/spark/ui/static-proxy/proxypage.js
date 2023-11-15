@@ -43,6 +43,11 @@ function getColumnIndex(columns, columnName) {
 }
 
 function renderTable(element, template, data) {
+  if (data.applications.length <= 0) {
+    element.text("No applications found!")
+    return
+  }
+
   var apps = $(Mustache.render($(template).filter("#history-summary-template").html(), data));
   var attemptIdColumnName = 'attemptId';
   var startedColumnName = 'started';
