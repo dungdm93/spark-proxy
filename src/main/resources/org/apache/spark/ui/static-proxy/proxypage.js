@@ -48,97 +48,81 @@ function renderTable(element, template, data) {
     return
   }
 
-  var apps = $(Mustache.render($(template).filter("#history-summary-template").html(), data));
-  var attemptIdColumnName = 'attemptId';
-  var startedColumnName = 'started';
-  var completedColumnName = 'completed';
-  var durationColumnName = 'duration';
-  var conf = {
-    "data": data.applications,
-    "columns": [
-      {
-        name: 'version',
-        data: 'version'
-      },
-      {
-        name: 'appId',
-        type: "appid-numeric",
-        data: 'id',
-        render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
-      },
-      {
-        name: 'appName',
-        data: 'name'
-      },
-      {
-        name: attemptIdColumnName,
-        data: 'attemptId',
-        render: (attemptId, type, row) => (attemptId ? `<a href="${row.attemptUrl}">${attemptId}</a>` : '')
-      },
-      {
-        name: startedColumnName,
-        data: 'startTime'
-      },
-      {
-        name: completedColumnName,
-        data: 'endTime'
-      },
-      {
-        name: durationColumnName,
-        type: "title-numeric",
-        data: 'duration',
-        render: (id, type, row) => `<span title="${row.durationMillisec}">${row.duration}</span>`
-      },
-      {
-        name: 'user',
-        data: 'sparkUser'
-      },
-      {
-        name: 'lastUpdated',
-        data: 'lastUpdated'
-      },
-      {
-        name: 'eventLog',
-        data: 'log',
-        render: (log, _ignored_type, _ignored_row) => `<a href="${log}" class="btn btn-info btn-mini">Download</a>`
-      },
-    ],
-    "aoColumnDefs": [
-      {
-        aTargets: [0, 1, 2],
-        fnCreatedCell: (nTd, _ignored_sData, _ignored_oData, _ignored_iRow, _ignored_iCol) => {
-          if (data.hasMultipleAttempts) {
-            $(nTd).css('background-color', '#fff');
-          }
-        }
-      },
-    ],
-    "autoWidth": false,
-    "deferRender": true
+  // render bodiless table (only has header)
+  const table = $(Mustache.render($(template).filter("#history-summary-template").html(), data));
+  let columns = [
+    {
+      name: "version",
+      data: "version"
+    },
+    {
+      name: "appId",
+      data: "id",
+      render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+    },
+    {
+      name: "appName",
+      data: "name"
+    },
+    {
+      name: "attemptId",
+      data: "attemptId",
+      render: (attemptId, type, row) => (attemptId ? `<a href="${row.attemptUrl}">${attemptId}</a>` : "")
+    },
+    {
+      name: "started",
+      data: "startTime"
+    },
+    {
+      name: "completed",
+      data: "endTime"
+    },
+    {
+      name: "duration",
+      data: "duration",
+      searchable: false,
+      render: (duration, type, row) => `<span title="${row.durationMillisec}">${row.duration}</span>`
+    },
+    {
+      name: "user",
+      data: "sparkUser"
+    },
+    {
+      name: "lastUpdated",
+      data: "lastUpdated"
+    },
+    {
+      name: "eventLog",
+      data: "log",
+      render: (log, type, row) => `<a href="${log}" class="btn btn-info btn-mini">Download</a>`
+    },
+  ]
+  if (!data.hasMultipleAttempts) {
+    columns = columns.filter(c => c.name !== "attemptId")
+  }
+  if (!data.showCompletedColumns) {
+    columns = columns.filter(c => c.name !== "completed" && c.name !== "duration")
+  }
+
+  let orderCol = data.showCompletedColumns ? "completed" : "started"
+  let conf = {
+    data: data.applications,
+    columns: columns,
+    order: [[columns.findIndex(c => c.name === orderCol), "desc"]],
+    autoWidth: false,
+    deferRender: true
   };
 
   if (data.hasMultipleAttempts) {
     conf.rowsGroup = [
-      'appId:name',
-      'version:name',
-      'appName:name'
+      "appId:name",
+      "version:name",
+      "appName:name"
     ];
-  } else {
-    conf.columns = removeColumnByName(conf.columns, attemptIdColumnName);
   }
 
-  var defaultSortColumn = completedColumnName;
-  if (!data.showCompletedColumns) {
-    defaultSortColumn = startedColumnName;
-    conf.columns = removeColumnByName(conf.columns, completedColumnName);
-    conf.columns = removeColumnByName(conf.columns, durationColumnName);
-  }
-  conf.order = [[getColumnIndex(conf.columns, defaultSortColumn), "desc"]];
-  conf.columnDefs = [
-    {"searchable": false, "targets": [getColumnIndex(conf.columns, durationColumnName)]}
-  ];
-  element.html(apps);
-  apps.DataTable(conf);
+  element.html(table);
+  table.DataTable(conf);
   element.find('[data-toggle="tooltip"]').tooltip();
 }
 
@@ -207,7 +191,7 @@ jQuery.extend(jQuery.fn.dataTableExt.ofnSearch, {
 
 $(document).on("ajaxStop", $.unblockUI);
 $(document).on("ajaxStart", () => {
-  $.blockUI({message: '<h3>Loading history summary...</h3>'});
+  $.blockUI({message: "<h3>Loading history summary...</h3>"});
 });
 
 $(document).ready(async function () {
