@@ -55,7 +55,7 @@ class ProxyServer(conf: SparkConf,
     appCache.withSparkUI(appId, attemptId)(fn)
 
   override def getApplicationInfoList: Iterator[ApplicationInfo] =
-    historyProvider.getListing()
+    proxyProvider.getListing() ++ historyProvider.getListing()
 
   override def getApplicationInfo(appId: String): Option[ApplicationInfo] =
     historyProvider.getApplicationInfo(appId)

@@ -1,6 +1,6 @@
 package org.apache.spark.kubernetes
 
-import io.fabric8.kubernetes.api.model.Pod
+import io.fabric8.kubernetes.api.model.{Pod, Quantity}
 import io.fabric8.kubernetes.client.dsl.{Gettable, Nameable, Namespaceable}
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import io.fabric8.kubernetes.client.utils.Utils.isNullOrEmpty
@@ -8,6 +8,12 @@ import io.k8s.sparkoperator.v1beta2.SparkApplication
 import io.k8s.sparkoperator.v1beta2.sparkapplicationstatus.DriverInfo
 import org.apache.spark.internal.Logging
 import org.apache.spark.kubernetes.SparkApplicationHandler._
+import org.apache.spark.status.api.v1.{ApplicationAttemptInfo, ApplicationInfo}
+import org.apache.spark.util.Utils
+
+import java.math.BigDecimal
+import java.time.Instant
+import java.util.Date
 
 class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyProvider)
   extends ResourceEventHandler[SparkApplication]
@@ -31,30 +37,78 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
 
   private def syncSparkApp(app: SparkApplication, removed: Boolean = false): Unit = {
     if (app.getStatus == null) return
+    val spec = app.getSpec
+    val status = app.getStatus
     val namespace = app.getMetadata.getNamespace
     val name = app.getMetadata.getName
     if (removed
-      || Option(app.getStatus.getApplicationState).exists(_.getState != RUNNING_STATE)
-      || isNullOrEmpty(app.getStatus.getSparkApplicationId)) {
-      provider.removeSparkApp(namespace, name)
+      || Option(status.getApplicationState).exists(_.getState != RUNNING_STATE)
+      || isNullOrEmpty(status.getSparkApplicationId)) {
+      provider.removeSparkApp(s"$namespace/$name")
       return
     }
 
-    val appId = app.getStatus.getSparkApplicationId
-    val driverInfo = app.getStatus.getDriverInfo
+    val appId = status.getSparkApplicationId
+    val driverInfo = status.getDriverInfo
     if (driverInfo == null) return
 
     getSparkUIHostPort(namespace, driverInfo) match {
       case Some((host, port)) =>
-        val appInfo = new SparkApplicationInfo(
-          appId = appId,
-          appName = name,
-          appNamespace = namespace,
-          driverHost = host,
-          driverPort = port,
+        val startTime = if (status.getLastSubmissionAttemptTime != null)
+          status.getLastSubmissionAttemptTime.toInstant else
+          Instant.parse(app.getMetadata.getCreationTimestamp)
+        val endTime = if (status.getTerminationTime != null)
+          status.getTerminationTime.toInstant else
+          Instant.now()
+        val driver = Option(spec.getDriver)
+        val executor = Option(spec.getExecutor)
+
+        val attempt = ApplicationAttemptInfo(
+          attemptId = Option(status.getSubmissionID),
+          startTime = Date.from(startTime),
+          endTime = Date.from(endTime),
+          lastUpdated = new Date(),
+          duration = endTime.toEpochMilli - startTime.toEpochMilli,
+          sparkUser = "spark",
+          completed = Option(status.getApplicationState).exists(s => FINISHED_STATES.contains(s.getState)),
+          appSparkVersion = spec.getSparkVersion,
         )
-        provider.upsertSparkApp(appInfo)
+        val appInfo = ApplicationInfo(
+          id = appId,
+          name = s"$namespace/$name",
+          coresGranted = driver.map(_.getCores),
+          maxCores = driver.flatMap(d => getCore(d.getCoreLimit)),
+          coresPerExecutor = executor.map(_.getCores),
+          memoryPerExecutorMB = executor.flatMap(e => getMemoryInMB(e.getMemory)),
+          attempts = Seq(attempt),
+        )
+        val driverInfo = SparkDriverInfo(
+          host = host,
+          port = port,
+        )
+        provider.upsertSparkApp(SparkAppInfo(appInfo, driverInfo))
       case _ =>
+    }
+  }
+
+  private def getCore(amount: String): Option[Int] = {
+    if (isNullOrEmpty(amount)) return None
+    try {
+      val number = Quantity.parse(amount).getNumericalAmount
+      Some(number.intValue())
+    }
+    catch {
+      case _: Exception => None
+    }
+  }
+
+  private def getMemoryInMB(amount: String): Option[Int] = {
+    try {
+      val a = if (isNullOrEmpty(amount)) "1g" else amount
+      val number = Utils.memoryStringToMb(a)
+      Some(number)
+    } catch {
+      case _: Exception => None
     }
   }
 
@@ -134,4 +188,7 @@ object SparkApplicationHandler {
   val SUCCEEDING_STATE = "SUCCEEDING"
   val FAILING_STATE = "FAILING"
   val UNKNOWN_STATE = "UNKNOWN"
+
+  val FINISHED_STATES = Seq(COMPLETED_STATE, FAILED_STATE)
+  val MB = BigDecimal.valueOf(1000000L)
 }
