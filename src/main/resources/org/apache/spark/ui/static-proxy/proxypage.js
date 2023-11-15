@@ -137,6 +137,31 @@ function renderTable(element, template, data) {
   element.find('[data-toggle="tooltip"]').tooltip();
 }
 
+function flatMapAttempts(app) {
+  return app["attempts"]
+    .map((attempt) => {
+        const attemptPart = attempt["attemptId"] ? attempt["attemptId"] + "/" : ""
+        const logUrl = `${uiRoot}/api/v1/applications/${app.id}/${attemptPart}logs`
+        const attemptUrl = `${uiRoot}/history/${app.id}/${attemptPart}jobs/`
+
+        return {
+          ...attempt,
+
+          startTime: formatTimeMillis(attempt["startTimeEpoch"]),
+          endTime: formatTimeMillis(attempt["endTimeEpoch"]),
+          lastUpdated: formatTimeMillis(attempt["lastUpdatedEpoch"]),
+          durationMillisec: attempt["duration"],
+          duration: formatDuration(attempt["duration"]),
+          attemptUrl: attemptUrl,
+          log: logUrl,
+          id: app.id,
+          name: app.name,
+          version: attempt["appSparkVersion"],
+        }
+      }
+    )
+}
+
 jQuery.extend(jQuery.fn.dataTableExt.oSort, {
   "title-numeric-pre": function (a) {
     var x = a.match(/title="*(-?[0-9.]+)/)[1];
@@ -196,50 +221,12 @@ $(document).ready(async function () {
   };
 
   const response = await $.getJSON(uiRoot + "/api/v1/applications", appParams);
-  var array = [];
-  var hasMultipleAttempts = false;
-  for (var i in response) {
-    var app = response[i];
-    if (app["attempts"][0]["completed"] == requestedIncomplete) {
-      continue; // if we want to show for Incomplete, we skip the completed apps; otherwise skip incomplete ones.
-    }
-    var version = "Unknown"
-    if (app["attempts"].length > 0) {
-      version = app["attempts"][0]["appSparkVersion"]
-    }
-    var id = app["id"];
-    var name = app["name"];
-    if (app["attempts"].length > 1) {
-      hasMultipleAttempts = true;
-    }
-
-    // TODO: Replace hasOwnProperty with prototype.hasOwnProperty after we find it's safe to do.
-    /* eslint-disable no-prototype-builtins */
-    for (var j in app["attempts"]) {
-      var attempt = app["attempts"][j];
-      attempt["startTime"] = formatTimeMillis(attempt["startTimeEpoch"]);
-      attempt["endTime"] = formatTimeMillis(attempt["endTimeEpoch"]);
-      attempt["lastUpdated"] = formatTimeMillis(attempt["lastUpdatedEpoch"]);
-      attempt["log"] = uiRoot + "/api/v1/applications/" + id + "/" +
-        (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "logs";
-      attempt["durationMillisec"] = attempt["duration"];
-      attempt["duration"] = formatDuration(attempt["duration"]);
-      attempt["id"] = id;
-      attempt["name"] = name;
-      attempt["version"] = version;
-      attempt["attemptUrl"] = uiRoot + "/history/" + id + "/" +
-        (attempt.hasOwnProperty("attemptId") ? attempt["attemptId"] + "/" : "") + "jobs/";
-      array.push(attempt);
-    }
-    /* eslint-enable no-prototype-builtins */
-  }
-  if (array.length < 20) {
-    $.fn.dataTable.defaults.paging = false;
-  }
+  let hasMultipleAttempts = response.some((app) => app["attempts"].length > 1)
+  let apps = response.flatMap(flatMapAttempts)
 
   var data = {
     "uiroot": uiRoot,
-    "applications": array,
+    "applications": apps,
     "hasMultipleAttempts": hasMultipleAttempts,
     "showCompletedColumns": !requestedIncomplete,
   };
