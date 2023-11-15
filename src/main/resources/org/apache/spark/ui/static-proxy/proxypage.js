@@ -1,45 +1,9 @@
 /* global $, Mustache, formatDuration, formatTimeMillis, jQuery, uiRoot */
 
-var appLimit = -1;
+let appLimit = -1;
 
 function setAppLimit(val) {
   appLimit = val;
-}
-
-function makeIdNumeric(id) {
-  var strs = id.split("_");
-  if (strs.length < 3) {
-    return id;
-  }
-  var appSeqNum = strs[2];
-  var resl = strs[0] + "_" + strs[1] + "_";
-  var diff = 10 - appSeqNum.length;
-  while (diff > 0) {
-    resl += "0"; // padding 0 before the app sequence number to make sure it has 10 characters
-    diff--;
-  }
-  resl += appSeqNum;
-  return resl;
-}
-
-function getParameterByName(name, searchString) {
-  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-    results = regex.exec(searchString);
-  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
-
-function removeColumnByName(columns, columnName) {
-  return columns.filter(function (col) {
-    return col.name != columnName
-  })
-}
-
-function getColumnIndex(columns, columnName) {
-  for (var i = 0; i < columns.length; i++) {
-    if (columns[i].name == columnName)
-      return i;
-  }
-  return -1;
 }
 
 function renderTable(element, template, data) {
@@ -152,42 +116,6 @@ function flatMapAttempts(app) {
       }
     )
 }
-
-jQuery.extend(jQuery.fn.dataTableExt.oSort, {
-  "title-numeric-pre": function (a) {
-    var x = a.match(/title="*(-?[0-9.]+)/)[1];
-    return parseFloat(x);
-  },
-
-  "title-numeric-asc": function (a, b) {
-    return ((a < b) ? -1 : ((a > b) ? 1 : 0));
-  },
-
-  "title-numeric-desc": function (a, b) {
-    return ((a < b) ? 1 : ((a > b) ? -1 : 0));
-  }
-});
-
-jQuery.extend(jQuery.fn.dataTableExt.oSort, {
-  "appid-numeric-pre": function (a) {
-    var x = a.match(/title="*(-?[0-9a-zA-Z\\-_]+)/)[1];
-    return makeIdNumeric(x);
-  },
-
-  "appid-numeric-asc": function (a, b) {
-    return ((a < b) ? -1 : ((a > b) ? 1 : 0));
-  },
-
-  "appid-numeric-desc": function (a, b) {
-    return ((a < b) ? 1 : ((a > b) ? -1 : 0));
-  }
-});
-
-jQuery.extend(jQuery.fn.dataTableExt.ofnSearch, {
-  "appid-numeric": function (a) {
-    return a.replace(/[\r\n]/g, " ").replace(/<.*?>/g, "");
-  }
-});
 
 $(document).on("ajaxStop", $.unblockUI);
 $(document).on("ajaxStart", () => {
