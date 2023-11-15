@@ -147,7 +147,9 @@ function flatMapAttempts(app) {
     .map((attempt) => {
         const attemptPart = attempt["attemptId"] ? attempt["attemptId"] + "/" : ""
         const logUrl = `${uiRoot}/api/v1/applications/${app.id}/${attemptPart}logs`
-        const attemptUrl = `${uiRoot}/history/${app.id}/${attemptPart}jobs/`
+        const attemptUrl = attempt["completed"] ?
+          `${uiRoot}/history/${app.id}/${attemptPart}jobs/` :
+          `${uiRoot}/proxy/${app.id}/${attemptPart}jobs/`
 
         return {
           ...attempt,
