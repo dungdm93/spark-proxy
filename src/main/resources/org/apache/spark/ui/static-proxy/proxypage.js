@@ -210,27 +210,31 @@ $(document).ready(async function () {
     pageLength: 20
   });
 
-  var historySummary = $("#completed-app-table");
-  var searchString = window.location.search;
-  var requestedIncomplete = getParameterByName("showIncomplete", searchString);
-  requestedIncomplete = (requestedIncomplete == "true" ? true : false);
-
-  var appParams = {
-    limit: appLimit,
-    status: (requestedIncomplete ? "running" : "completed")
-  };
-
-  const response = await $.getJSON(uiRoot + "/api/v1/applications", appParams);
-  let hasMultipleAttempts = response.some((app) => app["attempts"].length > 1)
+  const response = await $.getJSON(`${uiRoot}/api/v1/applications`, {limit: appLimit});
   let apps = response.flatMap(flatMapAttempts)
-
-  var data = {
-    "uiroot": uiRoot,
-    "applications": apps,
-    "hasMultipleAttempts": hasMultipleAttempts,
-    "showCompletedColumns": !requestedIncomplete,
-  };
+  let runningApps = apps.filter((app) => !app["completed"])
+  let completedApps = apps.filter((app) => app["completed"])
+  let hasMultipleAttempts = response.some((app) => app["attempts"].length > 1)
 
   const template = await $.get(`${uiRoot}/static/historypage-template.html`)
-  renderTable(historySummary, template, data)
+
+  renderTable(
+    $("#running-app-table"),
+    template,
+    {
+      applications: runningApps,
+      hasMultipleAttempts: hasMultipleAttempts,
+      showCompletedColumns: false,
+    }
+  );
+
+  renderTable(
+    $("#completed-app-table"),
+    template,
+    {
+      applications: completedApps,
+      hasMultipleAttempts: hasMultipleAttempts,
+      showCompletedColumns: true,
+    }
+  );
 });
