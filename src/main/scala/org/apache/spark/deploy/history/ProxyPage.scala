@@ -95,16 +95,4 @@ private[history] class ProxyPage(pageSize: Int, proxyProvider: ApplicationProxyP
       </div>
     </div>
   }
-
-  def shouldDisplayApplications(requestedIncomplete: Boolean): Boolean = {
-    historyProvider.getListing().exists(isApplicationCompleted(_) != requestedIncomplete)
-  }
-
-  private def makePageLink(request: HttpServletRequest, showIncomplete: Boolean): String = {
-    UIUtils.prependBaseUri(request, "/?" + "showIncomplete=" + showIncomplete)
-  }
-
-  private def isApplicationCompleted(appInfo: ApplicationInfo): Boolean = {
-    appInfo.attempts.nonEmpty && appInfo.attempts.head.completed
-  }
 }
