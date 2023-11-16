@@ -69,7 +69,7 @@ private[history] class ProxyPage(pageSize: Int, proxyProvider: ApplicationProxyP
               onClick="collapseTable('collapse-aggregated-activeApps','aggregated-activeApps')">
           <h4>
             <span class="collapse-table-arrow arrow-open"></span>
-            <a>Running Applications (0)</a>
+            <a id="running-app-title">Running Applications (0)</a>
           </h4>
         </span>
         <div class="aggregated-activeApps collapsible-table">
@@ -86,7 +86,7 @@ private[history] class ProxyPage(pageSize: Int, proxyProvider: ApplicationProxyP
               onClick="collapseTable('collapse-aggregated-completedApps', 'aggregated-completedApps')">
           <h4>
             <span class="collapse-table-arrow arrow-open"></span>
-            <a>Completed Applications (0)</a>
+            <a id="completed-app-title">Completed Applications (0)</a>
           </h4>
         </span>
         <div class="aggregated-completedApps collapsible-table">

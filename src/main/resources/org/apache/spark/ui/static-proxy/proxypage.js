@@ -6,27 +6,189 @@ function setAppLimit(val) {
   appLimit = val;
 }
 
-function renderTable(element, template, data) {
+const runningAppTemplate = `
+<table id="running-app-table" class="table table-striped compact">
+  <thead>
+    <tr>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Spark version of this application.">Version</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="ID of this application.">App ID</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Name of this application.">App Name</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Number of cores to use for the driver process.">Cores</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Amount of memory to use per executor process.">Memory/Executor</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Number of cores to use for the executor process">Cores/Executor</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Submitted time of this application.">Submitted Time</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The Spark user of this application">Spark User</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Current this application state">State</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The duration time of this application.">Duration</span>
+      </th>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+`
+
+const completedAppTemplate = `
+<table id="completed-app-table" class="table table-striped compact">
+  <thead>
+    <tr>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Spark version of this application.">Version</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="ID of this application.">App ID</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Name of this application.">App Name</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Started time of this application.">Started</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The completed time of this application.">Completed</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The duration time of this application.">Duration</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The Spark user of this application">Spark User</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="The timestamp of the last updating on this application">Last Updated</span>
+      </th>
+      <th>
+        <span data-toggle="tooltip" data-placement="top" title="Download the event log for this application">Event Log</span>
+      </th>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+`
+
+function renderRunningApp(data) {
+  let element = $("#running-app-table")
   if (data.applications.length <= 0) {
-    element.text("No applications found!")
+    element.text("No running applications found!")
     return
   }
 
   // render bodiless table (only has header)
-  const table = $(Mustache.render($(template).filter("#history-summary-template").html(), data));
+  const table = $(Mustache.render(runningAppTemplate, data));
+  element.html(table);
+
   let columns = [
     {
       name: "version",
-      data: "version"
+      data: "appSparkVersion"
     },
     {
       name: "appId",
-      data: "id",
+      data: "appId",
       render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
     },
     {
       name: "appName",
-      data: "name"
+      data: "appName",
+    },
+    {
+      name: "cores",
+      data: "coresGranted",
+    },
+    {
+      name: "executorMemory",
+      data: "memoryPerExecutorMB",
+      render: (mem, type, row) => `${mem} MB`
+    },
+    {
+      name: "executorCores",
+      data: "coresPerExecutor",
+    },
+    {
+      name: "submittedTime",
+      data: "startTime",
+    },
+    {
+      name: "user",
+      data: "sparkUser"
+    },
+    {
+      name: "state",
+      render: (_, type, row) => "RUNNING"
+    },
+    {
+      name: "duration",
+      data: "duration",
+      searchable: false,
+      render: (duration, type, row) => `<span title="${duration}">${formatDuration(duration)}</span>`
+    },
+  ]
+  if (!data.hasMultipleAttempts) {
+    columns = columns.filter(c => c.name !== "attemptId")
+  }
+
+  let conf = {
+    data: data.applications,
+    columns: columns,
+    order: [[columns.findIndex(c => c.name === "submittedTime"), "desc"]],
+    autoWidth: false,
+    deferRender: true
+  };
+
+  if (data.hasMultipleAttempts) {
+    conf.rowsGroup = [
+      "appId:name",
+      "version:name",
+      "appName:name"
+    ];
+  }
+
+  table.DataTable(conf);
+  element.find('[data-toggle="tooltip"]').tooltip();
+  $("#running-app-title").text(`Running Applications (${data.applications.length})`)
+}
+
+function renderCompletedApp(data) {
+  let element = $("#completed-app-table")
+  if (data.applications.length <= 0) {
+    element.text("No completed applications found!")
+    return
+  }
+
+  // render bodiless table (only has header)
+  const table = $(Mustache.render(completedAppTemplate, data));
+  element.html(table);
+
+  let columns = [
+    {
+      name: "version",
+      data: "appSparkVersion"
+    },
+    {
+      name: "appId",
+      data: "appId",
+      render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+    },
+    {
+      name: "appName",
+      data: "appName"
     },
     {
       name: "attemptId",
@@ -45,7 +207,7 @@ function renderTable(element, template, data) {
       name: "duration",
       data: "duration",
       searchable: false,
-      render: (duration, type, row) => `<span title="${row.durationMillisec}">${row.duration}</span>`
+      render: (duration, type, row) => `<span title="${duration}">${formatDuration(duration)}</span>`
     },
     {
       name: "user",
@@ -64,15 +226,11 @@ function renderTable(element, template, data) {
   if (!data.hasMultipleAttempts) {
     columns = columns.filter(c => c.name !== "attemptId")
   }
-  if (!data.showCompletedColumns) {
-    columns = columns.filter(c => c.name !== "completed" && c.name !== "duration")
-  }
 
-  let orderCol = data.showCompletedColumns ? "completed" : "started"
   let conf = {
     data: data.applications,
     columns: columns,
-    order: [[columns.findIndex(c => c.name === orderCol), "desc"]],
+    order: [[columns.findIndex(c => c.name === "completed"), "desc"]],
     autoWidth: false,
     deferRender: true
   };
@@ -85,36 +243,38 @@ function renderTable(element, template, data) {
     ];
   }
 
-  element.html(table);
   table.DataTable(conf);
   element.find('[data-toggle="tooltip"]').tooltip();
+  $("#completed-app-title").text(`Completed Applications (${data.applications.length})`)
 }
 
 function flatMapAttempts(app) {
-  return app["attempts"]
-    .map((attempt) => {
-        const attemptPart = attempt["attemptId"] ? attempt["attemptId"] + "/" : ""
-        const logUrl = `${uiRoot}/api/v1/applications/${app.id}/${attemptPart}logs`
-        const attemptUrl = attempt["completed"] ?
-          `${uiRoot}/history/${app.id}/${attemptPart}jobs/` :
-          `${uiRoot}/proxy/${app.id}/${attemptPart}jobs/`
+  let {attempts, ...rest} = app
 
-        return {
-          ...attempt,
+  return attempts.map((attempt) => {
+      const attemptPart = attempt["attemptId"] ? attempt["attemptId"] + "/" : ""
+      const logUrl = `${uiRoot}/api/v1/applications/${app.id}/${attemptPart}logs`
+      const attemptUrl = attempt["completed"] ?
+        `${uiRoot}/history/${app.id}/${attemptPart}jobs/` :
+        `${uiRoot}/proxy/${app.id}/${attemptPart}jobs/`
 
-          startTime: formatTimeMillis(attempt["startTimeEpoch"]),
-          endTime: formatTimeMillis(attempt["endTimeEpoch"]),
-          lastUpdated: formatTimeMillis(attempt["lastUpdatedEpoch"]),
-          durationMillisec: attempt["duration"],
-          duration: formatDuration(attempt["duration"]),
-          attemptUrl: attemptUrl,
-          log: logUrl,
-          id: app.id,
-          name: app.name,
-          version: attempt["appSparkVersion"],
-        }
+      let result = {
+        ...rest,
+        ...attempt,
+
+        appId: app.id,
+        appName: app.name,
+        attemptUrl: attemptUrl,
+        log: logUrl,
       }
-    )
+
+      if (!result["startTime"]) result["startTime"] = formatTimeMillis(attempt["startTimeEpoch"])
+      if (!result["endTime"]) result["endTime"] = formatTimeMillis(attempt["endTimeEpoch"])
+      if (!result["lastUpdated"]) result["lastUpdated"] = formatTimeMillis(attempt["lastUpdatedEpoch"])
+
+      return result
+    }
+  )
 }
 
 $(document).on("ajaxStop", $.unblockUI);
@@ -135,25 +295,13 @@ $(document).ready(async function () {
   let completedApps = apps.filter((app) => app["completed"])
   let hasMultipleAttempts = response.some((app) => app["attempts"].length > 1)
 
-  const template = await $.get(`${uiRoot}/static/historypage-template.html`)
+  renderRunningApp({
+    applications: runningApps,
+    hasMultipleAttempts: hasMultipleAttempts,
+  });
 
-  renderTable(
-    $("#running-app-table"),
-    template,
-    {
-      applications: runningApps,
-      hasMultipleAttempts: hasMultipleAttempts,
-      showCompletedColumns: false,
-    }
-  );
-
-  renderTable(
-    $("#completed-app-table"),
-    template,
-    {
-      applications: completedApps,
-      hasMultipleAttempts: hasMultipleAttempts,
-      showCompletedColumns: true,
-    }
-  );
+  renderCompletedApp({
+    applications: completedApps,
+    hasMultipleAttempts: hasMultipleAttempts,
+  })
 });
