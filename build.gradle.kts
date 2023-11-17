@@ -19,8 +19,9 @@ repositories {
 
 dependencies {
     implementation("org.apache.spark:spark-core_$scalaBinaryVersion:$sparkVersion")
-    implementation("org.apache.hadoop:hadoop-aws:$hadoopVersion")
-    implementation("org.eclipse.jetty:jetty-servlet:$jettyVersion")
+    runtimeOnly("org.apache.hadoop:hadoop-aws:$hadoopVersion")
+    // shade from "org.eclipse.jetty" to "org.sparkproject.jetty"
+    compileOnly("org.eclipse.jetty:jetty-servlet:$jettyVersion")
     implementation("io.fabric8:kubernetes-client:$fabric8Version")
     implementation("io.fabric8:generator-annotations:$fabric8Version")
 
