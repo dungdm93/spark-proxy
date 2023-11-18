@@ -4,8 +4,7 @@ import io.fabric8.kubernetes.api.model.{Pod, Quantity}
 import io.fabric8.kubernetes.client.dsl.{Gettable, Nameable, Namespaceable}
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import io.fabric8.kubernetes.client.utils.Utils.isNullOrEmpty
-import io.k8s.sparkoperator.v1beta2.SparkApplication
-import io.k8s.sparkoperator.v1beta2.sparkapplicationstatus.DriverInfo
+import io.k8s.sparkoperator.v1beta2.{DriverInfo, SparkApplication}
 import org.apache.spark.internal.Logging
 import org.apache.spark.kubernetes.SparkApplicationHandler._
 import org.apache.spark.status.api.v1.{ApplicationAttemptInfo, ApplicationInfo}
@@ -25,9 +24,6 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
     if (oldApp.getMetadata.getResourceVersion == newApp.getMetadata.getResourceVersion) {
       logDebug(s"SparkApp=${newApp.getMetadata.getNamespace}/${newApp.getMetadata.getName} up-to-date")
       return
-    }
-    if (oldApp.getStatus.getSparkApplicationId != newApp.getStatus.getSparkApplicationId) {
-      syncSparkApp(oldApp, removed = true)
     }
     syncSparkApp(newApp)
   }
@@ -55,10 +51,10 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
     getSparkUIHostPort(namespace, driverInfo) match {
       case Some((host, port)) =>
         val startTime = if (status.getLastSubmissionAttemptTime != null)
-          status.getLastSubmissionAttemptTime.toInstant else
+          Instant.parse(status.getLastSubmissionAttemptTime) else
           Instant.parse(app.getMetadata.getCreationTimestamp)
         val endTime = if (status.getTerminationTime != null)
-          status.getTerminationTime.toInstant else
+          Instant.parse(status.getTerminationTime) else
           Instant.now()
         val driver = Option(spec.getDriver)
         val executor = Option(spec.getExecutor)
@@ -174,6 +170,7 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
   }
 }
 
+//noinspection TypeAnnotation,ScalaWeakerAccess
 object SparkApplicationHandler {
   private type PodGetter = Namespaceable[_ <: Nameable[_ <: Gettable[Pod]]]
 
@@ -190,5 +187,4 @@ object SparkApplicationHandler {
   val UNKNOWN_STATE = "UNKNOWN"
 
   val FINISHED_STATES = Seq(COMPLETED_STATE, FAILED_STATE)
-  val MB = BigDecimal.valueOf(1000000L)
 }
