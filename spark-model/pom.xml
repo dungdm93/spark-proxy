@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.spark</groupId>
+    <artifactId>spark-proxy-root</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>spark-model</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.fabric8</groupId>
+      <artifactId>kubernetes-client-api</artifactId>
+      <version>${fabric8.version}</version>
+    </dependency>
+
+    <!-- annotationProcessor -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>builder-annotations</artifactId>
+      <version>${sundrio.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>transform-annotations</artifactId>
+      <version>${sundrio.version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.sundr</groupId>
+      <artifactId>sundr-codegen-velocity-nodeps</artifactId>
+      <version>${sundrio.version}</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <configuration>
+          <sourceDirectory>${project.basedir}/src/main/resources/schema</sourceDirectory>
+          <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+          <targetPackage>io.k8s.sparkoperator.api.model</targetPackage>
+          <removeOldOutput>true</removeOldOutput>
+
+          <annotationStyle>none</annotationStyle>
+          <customAnnotator>io.fabric8.kubernetes.jsonschema2pojo.ExtensionTypeAnnotator</customAnnotator>
+          <customRuleFactory>io.fabric8.kubernetes.jsonschema2pojo.Fabric8RuleFactory</customRuleFactory>
+          <includeJsr305Annotations>true</includeJsr305Annotations>
+          <includeJsr303Annotations>true</includeJsr303Annotations>
+          <includeConstructors>true</includeConstructors>
+          <includeToString>false</includeToString>
+          <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-model-jsonschema2pojo</artifactId>
+            <version>${fabric8.version}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
