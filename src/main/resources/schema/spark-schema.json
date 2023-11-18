@@ -1,0 +1,1174 @@
+{
+  "id": "http://fabric8.io/spark/SparkSchema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ApplicationState": {
+      "type": "object",
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ApplicationState",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_BatchSchedulerConfiguration": {
+      "type": "object",
+      "properties": {
+        "priorityClassName": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "queue": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "resources": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,io.fabric8.kubernetes.api.model.Quantity\u003e"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.BatchSchedulerConfiguration",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Dependencies": {
+      "type": "object",
+      "properties": {
+        "excludePackages": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "files": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "jars": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "packages": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pyFiles": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.Dependencies",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverInfo": {
+      "type": "object",
+      "properties": {
+        "podName": {
+          "type": "string"
+        },
+        "webUIAddress": {
+          "type": "string"
+        },
+        "webUIIngressAddress": {
+          "type": "string"
+        },
+        "webUIIngressName": {
+          "type": "string"
+        },
+        "webUIPort": {
+          "type": "integer"
+        },
+        "webUIServiceName": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.DriverInfo",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverSpec": {
+      "type": "object",
+      "properties": {
+        "affinity": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.Affinity"
+        },
+        "annotations": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "configMaps": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NamePath",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.NamePath"
+          }
+        },
+        "coreLimit": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "coreRequest": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "cores": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "dnsConfig": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.PodDNSConfig"
+        },
+        "env": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.EnvVar"
+          }
+        },
+        "envFrom": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.EnvFromSource"
+          }
+        },
+        "envSecretKeyRefs": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,io.k8s.sparkoperator.v1beta2.NameKey\u003e"
+        },
+        "envVars": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "gpu": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_GPUSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.GPUSpec"
+        },
+        "hostAliases": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.HostAlias"
+          }
+        },
+        "hostNetwork": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "image": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "initContainers": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Container"
+          }
+        },
+        "javaOptions": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "kubernetesMaster": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "labels": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "lifecycle": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.Lifecycle"
+        },
+        "memory": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "memoryOverhead": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "nodeSelector": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "podName": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "podSecurityContext": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.PodSecurityContext"
+        },
+        "ports": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Port",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.Port"
+          }
+        },
+        "schedulerName": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "secrets": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SecretInfo",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.SecretInfo"
+          }
+        },
+        "securityContext": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.SecurityContext"
+        },
+        "serviceAccount": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "serviceAnnotations": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "shareProcessNamespace": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "sidecars": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Container"
+          }
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "tolerations": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Toleration"
+          }
+        },
+        "volumeMounts": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.VolumeMount"
+          }
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.DriverSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DynamicAllocation": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "initialExecutors": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "maxExecutors": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "minExecutors": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "shuffleTrackingTimeout": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.DynamicAllocation",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ExecutorSpec": {
+      "type": "object",
+      "properties": {
+        "affinity": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.Affinity"
+        },
+        "annotations": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "configMaps": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NamePath",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.NamePath"
+          }
+        },
+        "coreLimit": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "coreRequest": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "cores": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "deleteOnTermination": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "dnsConfig": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.PodDNSConfig"
+        },
+        "env": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.EnvVar"
+          }
+        },
+        "envFrom": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.EnvFromSource"
+          }
+        },
+        "envSecretKeyRefs": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,io.k8s.sparkoperator.v1beta2.NameKey\u003e"
+        },
+        "envVars": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "gpu": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_GPUSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.GPUSpec"
+        },
+        "hostAliases": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.HostAlias"
+          }
+        },
+        "hostNetwork": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "image": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "initContainers": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Container"
+          }
+        },
+        "instances": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "javaOptions": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "labels": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "lifecycle": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.Lifecycle"
+        },
+        "memory": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "memoryOverhead": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "nodeSelector": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "podSecurityContext": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.PodSecurityContext"
+        },
+        "ports": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Port",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.Port"
+          }
+        },
+        "schedulerName": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "secrets": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SecretInfo",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.SecretInfo"
+          }
+        },
+        "securityContext": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.SecurityContext"
+        },
+        "serviceAccount": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "shareProcessNamespace": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "sidecars": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Container"
+          }
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "tolerations": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Toleration"
+          }
+        },
+        "volumeMounts": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.VolumeMount"
+          }
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ExecutorSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_GPUSpec": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.GPUSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_MonitoringSpec": {
+      "type": "object",
+      "properties": {
+        "exposeDriverMetrics": {
+          "type": "boolean"
+        },
+        "exposeExecutorMetrics": {
+          "type": "boolean"
+        },
+        "metricsProperties": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "metricsPropertiesFile": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "prometheus": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_PrometheusSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.PrometheusSpec"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.MonitoringSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NameKey": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.NameKey",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NamePath": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.NamePath",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Port": {
+      "type": "object",
+      "properties": {
+        "containerPort": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "protocol": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.Port",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_PrometheusSpec": {
+      "type": "object",
+      "properties": {
+        "configFile": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "configuration": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "jmxExporterJar": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "portName": {
+          "type": "string",
+          "existingJavaType": "String"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.PrometheusSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_RestartPolicy": {
+      "type": "object",
+      "properties": {
+        "onFailureRetries": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "onFailureRetryInterval": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "onSubmissionFailureRetries": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "onSubmissionFailureRetryInterval": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.RestartPolicy",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplication": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "default": "sparkoperator.k8s.io/v1beta2",
+          "required": true
+        },
+        "kind": {
+          "type": "string",
+          "default": "ScheduledSparkApplication",
+          "required": true
+        },
+        "metadata": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationStatus",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationStatus"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplication",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.HasMetadata",
+        "io.fabric8.kubernetes.api.model.Namespaced"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationList": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "default": "sparkoperator.k8s.io/v1beta2",
+          "required": true
+        },
+        "items": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplication",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplication"
+          }
+        },
+        "kind": {
+          "type": "string",
+          "default": "ScheduledSparkApplicationList",
+          "required": true
+        },
+        "metadata": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.ListMeta"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationList",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource",
+        "io.fabric8.kubernetes.api.model.KubernetesResourceList\u003cio.k8s.sparkoperator.v1beta2.ScheduledSparkApplication\u003e"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationSpec": {
+      "type": "object",
+      "properties": {
+        "concurrencyPolicy": {
+          "type": "string"
+        },
+        "failedRunHistoryLimit": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "schedule": {
+          "type": "string"
+        },
+        "successfulRunHistoryLimit": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "suspend": {
+          "type": "boolean",
+          "existingJavaType": "Boolean"
+        },
+        "template": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationSpec"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationStatus": {
+      "type": "object",
+      "properties": {
+        "lastRun": {
+          "existingJavaType": "java.lang.String"
+        },
+        "lastRunName": {
+          "type": "string"
+        },
+        "nextRun": {
+          "existingJavaType": "java.lang.String"
+        },
+        "pastFailedRunNames": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pastSuccessfulRunNames": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "scheduleState": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationStatus",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SecretInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "secretType": {
+          "type": "string"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SecretInfo",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplication": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "default": "sparkoperator.k8s.io/v1beta2",
+          "required": true
+        },
+        "kind": {
+          "type": "string",
+          "default": "SparkApplication",
+          "required": true
+        },
+        "metadata": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.ObjectMeta"
+        },
+        "spec": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationStatus",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationStatus"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SparkApplication",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.HasMetadata",
+        "io.fabric8.kubernetes.api.model.Namespaced"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationList": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "default": "sparkoperator.k8s.io/v1beta2",
+          "required": true
+        },
+        "items": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplication",
+            "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplication"
+          }
+        },
+        "kind": {
+          "type": "string",
+          "default": "SparkApplicationList",
+          "required": true
+        },
+        "metadata": {
+          "existingJavaType": "io.fabric8.kubernetes.api.model.ListMeta"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationList",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource",
+        "io.fabric8.kubernetes.api.model.KubernetesResourceList\u003cio.k8s.sparkoperator.v1beta2.SparkApplication\u003e"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationSpec": {
+      "type": "object",
+      "properties": {
+        "arguments": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "batchScheduler": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "batchSchedulerOptions": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_BatchSchedulerConfiguration",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.BatchSchedulerConfiguration"
+        },
+        "deps": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Dependencies",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.Dependencies"
+        },
+        "driver": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.DriverSpec"
+        },
+        "dynamicAllocation": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DynamicAllocation",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.DynamicAllocation"
+        },
+        "executor": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ExecutorSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.ExecutorSpec"
+        },
+        "failureRetries": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "hadoopConf": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "hadoopConfigMap": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "image": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "imagePullPolicy": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "imagePullSecrets": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainApplicationFile": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "mainClass": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "memoryOverheadFactor": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "mode": {
+          "type": "string"
+        },
+        "monitoring": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_MonitoringSpec",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.MonitoringSpec"
+        },
+        "nodeSelector": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "proxyUser": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "pythonVersion": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "restartPolicy": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_RestartPolicy",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.RestartPolicy"
+        },
+        "retryInterval": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "sparkConf": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "sparkConfigMap": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "sparkUIOptions": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkUIConfiguration",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkUIConfiguration"
+        },
+        "sparkVersion": {
+          "type": "string"
+        },
+        "timeToLiveSeconds": {
+          "type": "integer",
+          "existingJavaType": "Long"
+        },
+        "type": {
+          "type": "string"
+        },
+        "volumes": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.Volume"
+          }
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationSpec",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationStatus": {
+      "type": "object",
+      "properties": {
+        "applicationState": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ApplicationState",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.ApplicationState"
+        },
+        "driverInfo": {
+          "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverInfo",
+          "existingJavaType": "io.k8s.sparkoperator.v1beta2.DriverInfo"
+        },
+        "executionAttempts": {
+          "type": "integer"
+        },
+        "executorState": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "lastSubmissionAttemptTime": {
+          "existingJavaType": "java.lang.String"
+        },
+        "sparkApplicationId": {
+          "type": "string"
+        },
+        "submissionAttempts": {
+          "type": "integer"
+        },
+        "submissionID": {
+          "type": "string"
+        },
+        "terminationTime": {
+          "existingJavaType": "java.lang.String"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationStatus",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkUIConfiguration": {
+      "type": "object",
+      "properties": {
+        "ingressAnnotations": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "ingressTLS": {
+          "type": "array",
+          "javaOmitEmpty": true,
+          "items": {
+            "existingJavaType": "io.fabric8.kubernetes.api.model.networking.v1.IngressTLS"
+          }
+        },
+        "serviceAnnotations": {
+          "type": "object",
+          "existingJavaType": "java.util.Map\u003cString,String\u003e"
+        },
+        "servicePort": {
+          "type": "integer",
+          "existingJavaType": "Integer"
+        },
+        "servicePortName": {
+          "type": "string",
+          "existingJavaType": "String"
+        },
+        "serviceType": {
+          "type": "string",
+          "existingJavaType": "String"
+        }
+      },
+      "javaType": "io.k8s.sparkoperator.v1beta2.SparkUIConfiguration",
+      "javaInterfaces": [
+        "io.fabric8.kubernetes.api.model.KubernetesResource"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ApplicationState": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ApplicationState",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ApplicationState"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_BatchSchedulerConfiguration": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_BatchSchedulerConfiguration",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.BatchSchedulerConfiguration"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Dependencies": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Dependencies",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.Dependencies"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverInfo": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverInfo",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.DriverInfo"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DriverSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.DriverSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DynamicAllocation": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_DynamicAllocation",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.DynamicAllocation"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ExecutorSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ExecutorSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ExecutorSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_GPUSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_GPUSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.GPUSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_MonitoringSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_MonitoringSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.MonitoringSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NameKey": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NameKey",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.NameKey"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NamePath": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_NamePath",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.NamePath"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Port": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_Port",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.Port"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_PrometheusSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_PrometheusSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.PrometheusSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_RestartPolicy": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_RestartPolicy",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.RestartPolicy"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplication": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplication",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplication"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationList": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationList",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationList"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationStatus": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_ScheduledSparkApplicationStatus",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.ScheduledSparkApplicationStatus"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SecretInfo": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SecretInfo",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SecretInfo"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplication": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplication",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplication"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationList": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationList",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationList"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationSpec": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationSpec",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationSpec"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationStatus": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkApplicationStatus",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkApplicationStatus"
+    },
+    "github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkUIConfiguration": {
+      "$ref": "#/definitions/github_com_GoogleCloudPlatform_spark-on-k8s-operator_pkg_apis_sparkoperator_k8s_io_v1beta2_SparkUIConfiguration",
+      "existingJavaType": "io.k8s.sparkoperator.v1beta2.SparkUIConfiguration"
+    }
+  },
+  "additionalProperties": false
+}
