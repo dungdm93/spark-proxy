@@ -11,3 +11,4 @@ RUN --mount=type=cache,target=/root/.m2 \
 FROM $BASE_IMAGE
 
 COPY --from=builder /app/*/target/*.jar $SPARK_HOME/jars/
+COPY --chown=spark:spark ./deploy/scripts/* $SPARK_HOME/sbin/
