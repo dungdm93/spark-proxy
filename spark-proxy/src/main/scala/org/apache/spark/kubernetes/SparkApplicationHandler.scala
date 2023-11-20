@@ -10,26 +10,30 @@ import org.apache.spark.kubernetes.SparkApplicationHandler._
 import org.apache.spark.status.api.v1.{ApplicationAttemptInfo, ApplicationInfo}
 import org.apache.spark.util.Utils
 
-import java.math.BigDecimal
 import java.time.Instant
 import java.util.Date
 
 class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyProvider)
   extends ResourceEventHandler[SparkApplication]
     with Logging {
-  override def onAdd(app: SparkApplication): Unit =
+  override def onAdd(app: SparkApplication): Unit = {
+    logAction("Add", app)
     syncSparkApp(app)
+  }
 
   override def onUpdate(oldApp: SparkApplication, newApp: SparkApplication): Unit = {
     if (oldApp.getMetadata.getResourceVersion == newApp.getMetadata.getResourceVersion) {
       logDebug(s"SparkApp=${newApp.getMetadata.getNamespace}/${newApp.getMetadata.getName} up-to-date")
       return
     }
+    logAction("Update", newApp)
     syncSparkApp(newApp)
   }
 
-  override def onDelete(app: SparkApplication, deletedFinalStateUnknown: Boolean): Unit =
+  override def onDelete(app: SparkApplication, deletedFinalStateUnknown: Boolean): Unit = {
+    logAction("Delete", app)
     syncSparkApp(app, removed = true)
+  }
 
   private def syncSparkApp(app: SparkApplication, removed: Boolean = false): Unit = {
     if (app.getStatus == null) return
@@ -165,6 +169,11 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
     if (port == null) return None
 
     Some(port.getContainerPort)
+  }
+
+  private def logAction(action: String, app: SparkApplication): Unit = {
+    val state = Option(app.getStatus).map(_.getApplicationState).map(_.getState).getOrElse("")
+    logInfo(s"$action SparkApp=${app.getMetadata.getNamespace}/${app.getMetadata.getName} state=$state")
   }
 }
 
