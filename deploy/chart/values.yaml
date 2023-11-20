@@ -52,6 +52,18 @@ sparkProxyConfig:
     ## other properties here
     # resyncPeriodMs: ""
 
+persistentStore:
+  enabled: false
+  subPath: ""
+
+  # Option 1: helm managed PVC
+  storageClass: null
+  accessMode: ReadWriteOnce
+  size: 1G
+
+  # Option 2: existing PVC
+  existingClaim: null
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

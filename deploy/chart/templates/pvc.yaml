@@ -1,0 +1,24 @@
+{{- if and .Values.persistentStore.enabled (not .Values.persistentStore.existingClaim) }}
+{{- $volume := .Values.persistentStore  -}}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "spark-proxy.fullname" . }}
+  labels:
+    {{- include "spark-proxy.labels" . | nindent 4 }}
+spec:
+{{- if kindIs "invalid" $volume.storageClass }}
+  # storageClass is null, using default provisioner
+{{- else if or (empty $volume.storageClass) (eq "-" $volume.storageClass) }}
+  storageClassName: "" # disables dynamic provisioning
+{{- else }}
+  storageClassName: {{ $volume.storageClass }}
+{{- end }}
+  resources:
+    requests:
+      storage: {{ $volume.size }}
+  accessModes:
+    - {{ $volume.accessMode }}
+  volumeMode: Filesystem
+{{- end }}

@@ -12,6 +12,9 @@
     {{- $_ := set $config (printf "spark.proxy.kubernetes.%s" $name) $value }}
   {{- end }}
 {{- end }}
+{{- if .Values.persistentStore.enabled }}
+  {{- $_ := set $config "spark.history.store.path" "/tmp/spark-history/" }}
+{{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap

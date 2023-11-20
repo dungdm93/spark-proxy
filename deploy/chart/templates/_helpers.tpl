@@ -79,9 +79,21 @@ checksum/spark-config: {{ include (print $.Template.BasePath "/config.yaml") . |
 - name: spark-config
   configMap:
     name: {{ include "spark-proxy.fullname" . }}
+{{- if .Values.persistentStore.enabled }}
+- name: spark-history-store
+  persistentVolumeClaim:
+    claimName: {{ .Values.persistentStore.existingClaim | default (include "spark-proxy.fullname" .) }}
+{{- end }}
 {{- end }}
 
 {{- define "spark-proxy.volumeMounts" -}}
 - name: spark-config
   mountPath: /etc/spark
+{{- if .Values.persistentStore.enabled }}
+- name: spark-history-store
+  mountPath: /tmp/spark-history/
+  {{- with .Values.persistentStore.subPath }}
+  subPath: {{ . }}
+  {{- end }}
+{{- end }}
 {{- end }}
