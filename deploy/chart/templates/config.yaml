@@ -1,0 +1,26 @@
+{{- $config := .Values.sparkConfig }}
+{{- if eq .Values.sparkProxyConfig.type "kubernetes" }}
+  {{- $_ := set $config "spark.proxy.provider" "org.apache.spark.kubernetes.KubernetesProxyProvider" }}
+  {{- $namespace := .Values.sparkProxyConfig.kubernetes.namespace }}
+  {{- if $namespace -}}
+    {{- if (eq "~" $namespace) -}}
+      {{- $namespace = .Release.Namespace }}
+    {{- end -}}
+    {{- $_ := set $config "spark.proxy.kubernetes.namespace" $namespace }}
+  {{- end -}}
+  {{- range $name, $value := omit .Values.sparkProxyConfig.kubernetes "namespace" }}
+    {{- $_ := set $config (printf "spark.proxy.kubernetes.%s" $name) $value }}
+  {{- end }}
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "spark-proxy.fullname" . }}
+  labels:
+    {{- include "spark-proxy.labels" . | nindent 4 }}
+data:
+  spark.conf: |
+    {{- range $name, $value := $config }}
+    {{ $name }}={{ $value }}
+    {{- end }}

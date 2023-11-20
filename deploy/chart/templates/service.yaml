@@ -1,15 +1,53 @@
+{{- $service := .Values.service -}}
+{{- $specifyNodePort := or (eq $service.type "NodePort") (and (eq $service.type "LoadBalancer") $service.allocateLoadBalancerNodePorts) -}}
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "spark-proxy.fullname" . }}
   labels:
     {{- include "spark-proxy.labels" . | nindent 4 }}
+  {{- with $service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  type: {{ $service.type }}
+  {{- with $service.clusterIP }}
+  clusterIP: {{ . }}
+  {{- end }}
+  {{- if eq $service.type "LoadBalancer" }}
+  {{- with $service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  {{- with $service.loadBalancerClass }}
+  loadBalancerClass: {{ . }}
+  {{- end }}
+  {{- if not $service.allocateLoadBalancerNodePorts }}
+  allocateLoadBalancerNodePorts: false
+  {{- end }}
+  {{- end }}
+  {{- with $service.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with $service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with $service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
+  {{- with $service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     {{- include "spark-proxy.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 18080
+      targetPort: http
+      protocol: TCP
+      appProtocol: http
+      {{- if and $specifyNodePort $service.nodePort }}
+      nodePort: {{ $service.nodePort }}
+      {{- end }}

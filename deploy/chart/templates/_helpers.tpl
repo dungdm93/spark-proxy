@@ -60,3 +60,28 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+SparkProxy image
+*/}}
+{{- define "spark-proxy.image" -}}
+{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+{{- end -}}
+
+{{/*
+Checksum pod annotations
+*/}}
+{{- define "spark-proxy.checksum" -}}
+checksum/spark-config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+{{- end }}
+
+{{- define "spark-proxy.volumes" -}}
+- name: spark-config
+  configMap:
+    name: {{ include "spark-proxy.fullname" . }}
+{{- end }}
+
+{{- define "spark-proxy.volumeMounts" -}}
+- name: spark-config
+  mountPath: /etc/spark
+{{- end }}

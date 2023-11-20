@@ -1,0 +1,42 @@
+{{- if .Values.rbac.create -}}
+{{- $namespace := .Values.sparkProxyConfig.kubernetes.namespace }}
+{{- if (eq "~" $namespace) -}}
+  {{- $namespace = .Release.Namespace }}
+{{- end -}}
+{{- $clusterwide := empty $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ $clusterwide | ternary "ClusterRole" "Role" }}
+metadata:
+  name: {{ include "spark-proxy.fullname" . }}
+  {{- with $namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- include "spark-proxy.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "pods" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "sparkoperator.k8s.io" ]
+    resources: [ "sparkapplications", "scheduledsparkapplications" ]
+    verbs: [ "get", "list", "watch" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ $clusterwide | ternary "ClusterRoleBinding" "RoleBinding" }}
+metadata:
+  name: {{ include "spark-proxy.fullname" . }}
+  {{- with $namespace }}
+  namespace: {{ . }}
+  {{- end }}
+  labels:
+    {{- include "spark-proxy.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: {{ $clusterwide | ternary "ClusterRole" "Role" }}
+  name: {{ include "spark-proxy.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "spark-proxy.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
