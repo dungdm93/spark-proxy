@@ -102,7 +102,12 @@ function renderRunningApp(data) {
     {
       name: "appId",
       data: "appId",
-      render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+      render: (id, type, row) => {
+        if (type === "display") {
+          return `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+        }
+        return id
+      }
     },
     {
       name: "appName",
@@ -111,15 +116,17 @@ function renderRunningApp(data) {
     {
       name: "cores",
       data: "coresGranted",
+      render: (cores, type, row) => cores ?? ""
     },
     {
       name: "executorMemory",
       data: "memoryPerExecutorMB",
-      render: (mem, type, row) => `${mem} MB`
+      render: (mem, type, row) => mem ? `${mem} MB` : ""
     },
     {
       name: "executorCores",
       data: "coresPerExecutor",
+      render: (cores, type, row) => cores ?? ""
     },
     {
       name: "submittedTime",
@@ -131,13 +138,18 @@ function renderRunningApp(data) {
     },
     {
       name: "state",
-      render: (_, type, row) => "RUNNING"
+      render: (_, type, row) => row["completed"] ? "COMPLETED" : "RUNNING"
     },
     {
       name: "duration",
       data: "duration",
       searchable: false,
-      render: (duration, type, row) => `<span title="${duration}">${formatDuration(duration)}</span>`
+      render: (duration, type, row) => {
+        if (type === "display") {
+          return `<span title="${duration}">${formatDuration(duration)}</span>`
+        }
+        return duration
+      }
     },
   ]
   if (!data.hasMultipleAttempts) {
@@ -184,7 +196,12 @@ function renderCompletedApp(data) {
     {
       name: "appId",
       data: "appId",
-      render: (id, type, row) => `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+      render: (id, type, row) => {
+        if (type === "display") {
+          return `<span title="${id}"><a href="${row.attemptUrl}">${id}</a></span>`
+        }
+        return id
+      }
     },
     {
       name: "appName",
@@ -193,7 +210,12 @@ function renderCompletedApp(data) {
     {
       name: "attemptId",
       data: "attemptId",
-      render: (attemptId, type, row) => (attemptId ? `<a href="${row.attemptUrl}">${attemptId}</a>` : "")
+      render: (attemptId, type, row) => {
+        if (type === "display") {
+          return (attemptId ? `<a href="${row.attemptUrl}">${attemptId}</a>` : "")
+        }
+        return attemptId
+      }
     },
     {
       name: "started",
@@ -207,7 +229,12 @@ function renderCompletedApp(data) {
       name: "duration",
       data: "duration",
       searchable: false,
-      render: (duration, type, row) => `<span title="${duration}">${formatDuration(duration)}</span>`
+      render: (duration, type, row) => {
+        if (type === "display") {
+          return `<span title="${duration}">${formatDuration(duration)}</span>`
+        }
+        return duration
+      }
     },
     {
       name: "user",
