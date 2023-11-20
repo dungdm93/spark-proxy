@@ -137,20 +137,18 @@ class SparkApplicationHandler(podGetter: PodGetter, provider: KubernetesProxyPro
   }
 
   private def getDriverPod(namespace: String, podName: String): Pod = {
-    if (isNullOrEmpty(podName)) {
-      try {
-        val pod = podGetter
-          .inNamespace(namespace)
-          .withName(podName)
-          .get()
-        return pod
-      } catch {
-        case e: Exception =>
-          logError(s"Error while get pod $namespace/$podName from kubernetes", e)
-          return null
-      }
+    if (isNullOrEmpty(podName)) return null
+
+    try {
+      podGetter
+        .inNamespace(namespace)
+        .withName(podName)
+        .get()
+    } catch {
+      case e: Exception =>
+        logError(s"Error while get pod $namespace/$podName from kubernetes", e)
+        null
     }
-    null
   }
 
   private def getSparkUIPort(pod: Pod): Option[Int] = {
